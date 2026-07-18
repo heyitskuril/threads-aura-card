@@ -1,0 +1,6 @@
+{
+  "name": "Threads Aura Card",
+  "description": "Discover your Threads presence distilled into a beautiful, collectible Aura Card with custom titles, metrics, badges, and rarity tiers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
