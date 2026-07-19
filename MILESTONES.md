@@ -178,21 +178,20 @@ Each milestone should be completable in 1–3 sessions.
 
 ## Milestone P — Real Profile Data Integration
 
-**Goal**: Replace mocked/random profile identity data with real public Threads profile data — real profile picture, display name, and bio. Uses official Threads API with fallback to meta-tag scraping.
+**Goal**: Replace mocked/random profile identity data with real public Threads profile data — real profile picture, display name, and bio. Uses public meta-tag extraction from the Threads profile page.
 
 **Tasks**:
-- [x] Create serverless API route `app/api/profile/[username]/route.ts` with 6-step flow:
+- [x] Create serverless API route `app/api/profile/[username]/route.ts`:
   - [x] Username validation (alphanumeric + period + underscore only)
-  - [x] Upstash Redis cache check (`profile:{username}` key, 24h TTL)
-  - [x] Daily quota safeguard (skip official call if >= 950/1000 used today)
-  - [x] Official Meta `profile_lookup` API call with access token
-  - [x] Fallback: lightweight `og:image`/`og:title` HTML fetch from public profile page
+  - [x] Upstash Redis cache check (`profile:{lowercased-username}` key, 24h TTL)
+  - [x] Data source: fetch `threads.net/@{username}` and extract `og:image`/`og:title` meta tags (only viable method — official `profile_lookup` evaluated and dropped; requires Meta App Review for `threads_profile_discovery`, not pursued)
   - [x] Image rehost via Cloudinary (permanent URL, never original CDN)
+  - [x] Returns honest `"unavailable"` state if page fetch or image extraction fails — never fabricates data
 - [x] Client-side integration: `app/page.tsx` calls API during loading phase, passes real `displayName`, `bio`, `avatarUrl` into `AuraCardView`
 - [x] Card shows real avatar (or fallback initials), display name, and bio
-- [x] Handles all edge cases: not found, private, rate-limited, both paths failed — never fabricates data
+- [x] Handles all edge cases: not found, private, page structure changed, network error — never fabricates data
 - [x] Disclaimer copy added: short version under card + full version in footer (Indonesian, matches existing casual tone)
-- [x] `.env.example` updated with Meta/Cloudinary/Upstash placeholder keys
+- [x] `.env.example` updated with Cloudinary/Upstash placeholder keys (THREADS_ACCESS_TOKEN removed — unused)
 - [x] `@upstash/redis`, `cloudinary` added as dependencies
 - [x] Verify `npm run build` passes cleanly
 

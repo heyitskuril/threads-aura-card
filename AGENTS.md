@@ -21,7 +21,8 @@ Full product spec lives at: `/docs/threads-aura-card-product-blueprint.md` (read
 - **API routes**: Next.js serverless functions in `app/api/`
 - **Profile caching**: Upstash Redis (24h TTL, `profile:{username}` key)
 - **Image rehosting**: Cloudinary (profiles stored under `threads-aura-card/profiles/`)
-- **Commands**: `npm run dev -p 3000`, `npm run build`, `npm run start`, `npm run lint`
+- **Profile data source**: public meta-tag extraction from `threads.net/@{username}` (no authenticated Meta API call — `threads_profile_discovery` requires App Review)
+- **Commands**: `npm run dev`, `npm run build`, `npm run start`, `npm run lint`
 
 ---
 
