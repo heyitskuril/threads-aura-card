@@ -158,8 +158,9 @@ ${isReroll ? 'Pick DIFFERENT metrics than last time.' : ''}
 Return ONLY a JSON object with exactly 10 metrics (no other text):
 {"metrics":[{"id":"metric_id","score":number},{"id":"metric_id","score":number}]}
 
-- Score each metric independently. Be critical: use 30-50 for most metrics, 55-70 for genuinely good fits, 75-90 only for exceptional fits
-- Most scores should be between 30-70. Only 1-2 metrics should be above 75 if the profile is truly outstanding
+- Score genuinely based on the profile. Use the full 20-100 range freely.
+- 70+ for strong/memorable traits, 50-69 for solid presence, 20-49 for less evident areas
+- A well-known or highly active profile should have several 70+ scores
 - No scores above 100, no scores below 20
 - Use metric IDs exactly as listed
 
