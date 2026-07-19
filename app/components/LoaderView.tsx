@@ -26,12 +26,12 @@ export default function LoaderView() {
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-[#0B0B0F] z-50 flex flex-col items-center justify-center p-6 text-slate-100 font-sans overflow-hidden">
+    <div className="fixed inset-0 bg-[#0B0B0F] z-50 flex flex-col items-center justify-center gap-12 p-6 text-slate-100 font-sans overflow-hidden" style={{ margin: 0 }}>
 
       <div className="absolute w-[300px] h-[300px] rounded-full bg-indigo-500/10 blur-[100px] top-1/4 left-1/4 animate-pulse duration-10000" />
       <div className="absolute w-[300px] h-[300px] rounded-full bg-emerald-500/10 blur-[100px] bottom-1/4 right-1/4 animate-pulse duration-10000 delay-2000" />
 
-      <div className="relative flex items-center justify-center mb-12">
+      <div className="relative flex items-center justify-center">
         <div className="absolute w-56 h-56 rounded-full border border-indigo-500/20 animate-ping opacity-40 duration-3000" />
         <div className="absolute w-44 h-44 rounded-full border border-emerald-500/20 animate-ping opacity-30 duration-3000 delay-1000" />
 
