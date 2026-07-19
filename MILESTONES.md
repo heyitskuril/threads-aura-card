@@ -108,7 +108,6 @@ Each milestone should be completable in 1–3 sessions.
 - [x] Generate a unique share slug per result and persist results in `localStorage` (no server needed for MVP per audit finding)
 - [x] Implement a public result route: `/?u=<slug>` that loads a stored card directly, skipping the Landing view
 - [x] Implement per-username cache window (e.g., 24h): same username within window returns same result without re-generation
-- [ ] Set up a simple Express server (`server.js`) for future API routes — `express`/`dotenv` deps already removed, not needed
 
 **Depends on**: Milestone 0, Milestone 2
 
@@ -155,6 +154,56 @@ Each milestone should be completable in 1–3 sessions.
 
 ---
 
+## Milestone S — Stack Migration: Vite → Next.js
+
+**Goal**: Migrate the codebase from Vite + React SPA to Next.js 15 (App Router) for serverless API routes, proper routing, and SSR/SSG capabilities.
+
+**Tasks**:
+- [x] Replace Vite scaffold with Next.js (App Router) — `next.config.ts`, `postcss.config.mjs`, `app/layout.tsx`
+- [x] Move `src/` content to `app/` directory: components, data, hooks, types, CSS
+- [x] Add `'use client'` directives to interactive components (hooks, state, browser APIs)
+- [x] Replace `@tailwindcss/vite` with `@tailwindcss/postcss` for Tailwind v4 in Next.js
+- [x] Replace `html2canvas` static import with dynamic client-only import
+- [x] Update `AGENTS.md` §2 to lock in Next.js as the confirmed stack
+- [x] Update scripts, tsconfig, .gitignore for Next.js conventions
+- [x] Verify `npm run build` passes cleanly
+
+**Depends on**: Milestone 0 (clean state base)
+
+**Blueprint reference**: None (infrastructure decision)
+
+**Status**: Done
+
+---
+
+## Milestone P — Real Profile Data Integration
+
+**Goal**: Replace mocked/random profile identity data with real public Threads profile data — real profile picture, display name, and bio. Uses official Threads API with fallback to meta-tag scraping.
+
+**Tasks**:
+- [x] Create serverless API route `app/api/profile/[username]/route.ts` with 6-step flow:
+  - [x] Username validation (alphanumeric + period + underscore only)
+  - [x] Upstash Redis cache check (`profile:{username}` key, 24h TTL)
+  - [x] Daily quota safeguard (skip official call if >= 950/1000 used today)
+  - [x] Official Meta `profile_lookup` API call with access token
+  - [x] Fallback: lightweight `og:image`/`og:title` HTML fetch from public profile page
+  - [x] Image rehost via Cloudinary (permanent URL, never original CDN)
+- [x] Client-side integration: `app/page.tsx` calls API during loading phase, passes real `displayName`, `bio`, `avatarUrl` into `AuraCardView`
+- [x] Card shows real avatar (or fallback initials), display name, and bio
+- [x] Handles all edge cases: not found, private, rate-limited, both paths failed — never fabricates data
+- [x] Disclaimer copy added: short version under card + full version in footer (Indonesian, matches existing casual tone)
+- [x] `.env.example` updated with Meta/Cloudinary/Upstash placeholder keys
+- [x] `@upstash/redis`, `cloudinary` added as dependencies
+- [x] Verify `npm run build` passes cleanly
+
+**Depends on**: Milestone S (Next.js provides the serverless function infrastructure)
+
+**Blueprint reference**: §14.1 (Frontend architecture), §14.2–4 (Backend/API/Database), §14.6 (Caching)
+
+**Status**: Done
+
+---
+
 ## Milestone 8 — Post-launch / V2 backlog
 
 **Goal**: Tracked, not started — future scope.
@@ -189,4 +238,6 @@ Each milestone should be completable in 1–3 sessions.
 | 5 — Foundational "backend" (client-side) | **Done** |
 | 6 — Rarity system v2 (score-based) | **Done** |
 | 7 — Launch readiness | **Done** |
+| S — Stack Migration: Vite → Next.js | **Done** |
+| P — Real Profile Data Integration | **Done** |
 | 8 — Post-launch / V2 | **Not Started** |

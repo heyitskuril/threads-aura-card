@@ -12,16 +12,16 @@ Full product spec lives at: `/docs/threads-aura-card-product-blueprint.md` (read
 
 ---
 
-## 2. Tech Stack (confirm against actual repo before assuming)
+## 2. Tech Stack (confirmed)
 
-- **Frontend**: React 19 + Vite 6 + TypeScript + Tailwind CSS v4
+- **Framework**: Next.js 15 (App Router) + TypeScript
+- **Styling**: Tailwind CSS v4 (via `@tailwindcss/postcss`)
 - **Image export**: client-side `html2canvas` for PNG download at 1080×1350
-- **Commands**: `npm run dev`, `npm run build`, `npm run lint`
-- **Card generation**: deterministic seeded RNG in `src/data/catalog.ts`
-
-If you're unsure which of these applies, **inspect the repo first** (`package.json`, config files, folder structure) rather than guessing or reintroducing a different stack.
-
-If you're unsure which of these applies, **inspect the repo first** (`package.json`, config files, folder structure) rather than guessing or reintroducing a different stack.
+- **Card generation**: deterministic seeded RNG in `app/data/catalog.ts`
+- **API routes**: Next.js serverless functions in `app/api/`
+- **Profile caching**: Upstash Redis (24h TTL, `profile:{username}` key)
+- **Image rehosting**: Cloudinary (profiles stored under `threads-aura-card/profiles/`)
+- **Commands**: `npm run dev -p 3000`, `npm run build`, `npm run start`, `npm run lint`
 
 ---
 
