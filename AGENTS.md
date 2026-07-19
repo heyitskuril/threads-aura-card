@@ -22,6 +22,7 @@ Full product spec lives at: `/docs/threads-aura-card-product-blueprint.md` (read
 - **Profile caching**: Upstash Redis (24h TTL, `profile:{username}` key)
 - **Image rehosting**: Cloudinary (profiles stored under `threads-aura-card/profiles/`)
 - **Profile data source**: public meta-tag extraction from `threads.net/@{username}` (no authenticated Meta API call — `threads_profile_discovery` requires App Review)
+- **Profile enrichment (optional)**: Gemini AI extracts bio, follower count, and vibe summary from the same page HTML when `GEMINI_API_KEY` is configured
 - **Commands**: `npm run dev`, `npm run build`, `npm run start`, `npm run lint`
 
 ---

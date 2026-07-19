@@ -9,12 +9,16 @@ const UPSTASH_REDIS_REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || '';
 const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || '';
 const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY || '';
 const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET || '';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 
 interface ProfileResult {
   displayName: string | null;
   bio: string | null;
   avatarUrl: string | null;
-  source: 'public-profile' | 'unavailable';
+  followerCount: number | null;
+  postCount: number | null;
+  vibeSummary: string | null;
+  source: 'public-profile' | 'enriched' | 'unavailable';
 }
 
 function getRedis(): Redis | null {
@@ -77,6 +81,72 @@ function extractMetaTag(html: string, property: string): string | null {
   return null;
 }
 
+interface GeminiExtract {
+  displayName: string | null;
+  bio: string | null;
+  followerCount: number | null;
+  postCount: number | null;
+  vibeSummary: string | null;
+}
+
+async function enrichWithGemini(html: string): Promise<GeminiExtract | null> {
+  if (!GEMINI_API_KEY) return null;
+
+  const truncated = html.slice(0, 80000);
+
+  const prompt = `You are given the HTML of a public Threads profile page. Extract the following information and return ONLY valid JSON (no markdown, no explanation):
+
+{
+  "displayName": "The user's full display name (from og:title or the page heading — just the name, not the @username)",
+  "bio": "The profile bio/description text",
+  "followerCount": "Number of followers (as a number, not string — e.g. 1234, not '1.2K'. If only abbreviated text like '1.2K' is found, estimate to nearest whole number)",
+  "postCount": "Number of posts (as a number, same rules as followerCount)",
+  "vibeSummary": "A single sentence summarizing the vibe of this profile based on their bio and available info"
+}
+
+If a field is not found in the HTML, set it to null. Return ONLY the JSON object, nothing else.
+
+HTML:
+${truncated}`;
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        signal: AbortSignal.timeout(15000),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.1,
+            maxOutputTokens: 500,
+          },
+        }),
+      },
+    );
+
+    if (!res.ok) return null;
+
+    const body = await res.json();
+    const text: string | undefined = body?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) return null;
+
+    const cleaned = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+    const parsed = JSON.parse(cleaned);
+
+    return {
+      displayName: typeof parsed.displayName === 'string' ? parsed.displayName.trim() || null : null,
+      bio: typeof parsed.bio === 'string' ? parsed.bio.trim() || null : null,
+      followerCount: typeof parsed.followerCount === 'number' ? parsed.followerCount : null,
+      postCount: typeof parsed.postCount === 'number' ? parsed.postCount : null,
+      vibeSummary: typeof parsed.vibeSummary === 'string' ? parsed.vibeSummary.trim() || null : null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 async function fetchPublicProfile(username: string): Promise<ProfileResult | null> {
   try {
     const res = await fetch(`https://www.threads.net/@${username}`, {
@@ -98,12 +168,27 @@ async function fetchPublicProfile(username: string): Promise<ProfileResult | nul
     const displayName = ogTitle?.trim() || null;
     const avatarUrl = await downloadAndRehost(ogImage, username);
 
-    return {
+    const result: ProfileResult = {
       displayName,
       bio: null,
       avatarUrl,
+      followerCount: null,
+      postCount: null,
+      vibeSummary: null,
       source: 'public-profile',
     };
+
+    const gemini = await enrichWithGemini(html);
+    if (gemini) {
+      result.displayName = gemini.displayName || result.displayName;
+      result.bio = gemini.bio || null;
+      result.followerCount = gemini.followerCount;
+      result.postCount = gemini.postCount;
+      result.vibeSummary = gemini.vibeSummary;
+      result.source = 'enriched';
+    }
+
+    return result;
   } catch {
     return null;
   }
@@ -163,6 +248,9 @@ export async function GET(
       displayName: null,
       bio: null,
       avatarUrl: null,
+      followerCount: null,
+      postCount: null,
+      vibeSummary: null,
       source: 'unavailable',
     };
     await setCache(redis, cacheKey, unavailable);
