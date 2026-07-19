@@ -147,87 +147,92 @@ export default function AuraCardView({ data, onReset, onReRoll }: AuraCardViewPr
 
       const displayName = data.profile?.displayName || data.username;
 
-      ctx.fillStyle = '#64748b';
-      ctx.font = '16px monospace';
-      ctx.fillText('THREADS AURA CARD', 50, 55);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '18px monospace';
+      ctx.fillText('THREADS AURA CARD', 50, 50);
 
       ctx.fillStyle = tc;
-      ctx.font = 'bold 14px monospace';
-      ctx.fillText(data.tier.toUpperCase(), 50, 80);
+      ctx.font = 'bold 16px monospace';
+      ctx.fillText(data.tier.toUpperCase(), 50, 78);
 
       ctx.fillStyle = '#f1f5f9';
-      ctx.font = 'bold 38px sans-serif';
-      ctx.fillText(data.title.name, 50, 150);
+      ctx.font = 'bold 44px sans-serif';
+      ctx.fillText(data.title.name, 50, 165);
 
       ctx.fillStyle = '#94a3b8';
-      ctx.font = '16px sans-serif';
-      ctx.fillText(data.title.description, 50, 180);
+      ctx.font = '18px sans-serif';
+      ctx.fillText(data.title.description, 50, 200);
 
-      ctx.fillStyle = tc + '80';
-      ctx.font = 'italic 14px sans-serif';
-      ctx.fillText(config.description, 50, 205);
+      ctx.fillStyle = tc + '99';
+      ctx.font = 'italic 16px sans-serif';
+      ctx.fillText(config.description, 50, 230);
 
       ctx.fillStyle = '#e2e8f0';
-      ctx.font = 'bold 22px sans-serif';
-      ctx.fillText(displayName, 50, 260);
+      ctx.font = 'bold 26px sans-serif';
+      ctx.fillText(displayName, 50, 295);
 
       ctx.fillStyle = '#64748b';
-      ctx.font = '16px monospace';
-      ctx.fillText(data.username, 50, 285);
+      ctx.font = '18px monospace';
+      ctx.fillText(data.username, 50, 325);
 
       if (data.profile?.bio) {
         ctx.fillStyle = '#94a3b8';
-        ctx.font = '14px sans-serif';
-        const bioText = data.profile.bio.length > 150 ? data.profile.bio.slice(0, 150) + '...' : data.profile.bio;
-        ctx.fillText(bioText, 50, 310);
+        ctx.font = '16px sans-serif';
+        const bioText = data.profile.bio.length > 180 ? data.profile.bio.slice(0, 180) + '...' : data.profile.bio;
+        ctx.fillText(bioText, 50, 355);
       }
 
-      const metricsX = 520;
+      const metricsX = 530;
       data.metrics.slice(0, 8).forEach((m, i) => {
         const col = i < 4 ? 0 : 1;
         const row = i < 4 ? i : i - 4;
         const x = metricsX + col * 390;
-        const y = 75 + row * 58;
+        const y = 60 + row * 68;
 
         ctx.fillStyle = '#94a3b8';
-        ctx.font = '16px sans-serif';
-        ctx.fillText(`${m.emoji} ${m.label}`, x, y + 12);
+        ctx.font = '18px sans-serif';
+        ctx.fillText(`${m.emoji} ${m.label}`, x, y + 16);
 
         ctx.fillStyle = tc;
-        ctx.font = 'bold 18px sans-serif';
+        ctx.font = 'bold 22px sans-serif';
         ctx.textAlign = 'right';
-        ctx.fillText(String(m.score), x + 330, y + 12);
+        ctx.fillText(String(m.score), x + 330, y + 16);
         ctx.textAlign = 'left';
 
         ctx.fillStyle = '#ffffff15';
-        ctx.fillRect(x, y + 20, 330, 14);
+        ctx.fillRect(x, y + 26, 330, 16);
         ctx.fillStyle = tc;
-        ctx.fillRect(x, y + 20, (m.score / 100) * 330, 14);
+        ctx.fillRect(x, y + 26, (m.score / 100) * 330, 16);
       });
 
-      const badgeY = 360;
+      const badgeY = 420;
       ctx.textAlign = 'left';
       data.badges.slice(0, 4).forEach((b, i) => {
-        const bx = 50 + i * 165;
+        const bx = 50 + i * 185;
         ctx.fillStyle = '#ffffff12';
         ctx.beginPath();
-        (ctx as any).roundRect(bx, badgeY, 145, 34, 17);
+        (ctx as any).roundRect(bx, badgeY, 165, 38, 19);
         ctx.fill();
         ctx.fillStyle = '#cbd5e1';
-        ctx.font = '14px sans-serif';
+        ctx.font = '16px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(`${b.emoji} ${b.name}`, bx + 72, badgeY + 23);
+        ctx.fillText(`${b.emoji} ${b.name}`, bx + 82, badgeY + 26);
       });
 
       ctx.fillStyle = '#64748b';
-      ctx.font = 'italic 16px sans-serif';
+      ctx.font = 'italic 18px sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText(`"${data.insight}"`, 50, 440);
+      ctx.fillText(`"${data.insight}"`, 50, 510);
 
       ctx.fillStyle = '#475569';
-      ctx.font = '13px sans-serif';
+      ctx.font = '15px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('threads-aura-card.vercel.app', 50, 840);
+
+      ctx.fillStyle = '#475569';
+      ctx.font = '15px sans-serif';
       ctx.textAlign = 'right';
-      ctx.fillText('Created with Threads Aura Card · by Kuril Dev', 1300, 870);
+      ctx.fillText('by Kuril Dev', 1300, 840);
 
       const image = cvs.toDataURL('image/png', 1.0);
       const link = document.createElement('a');
