@@ -1,19 +1,33 @@
 import type { ReactNode } from 'react';
+import type { Metadata } from 'next';
 import ErrorBoundary from './components/ErrorBoundary';
 import './globals.css';
 
-export const metadata = {
-  title: "Threads Aura Card — What's your internet aura?",
+const url = 'https://threads-aura-card.vercel.app';
+
+export const metadata: Metadata = {
+  title: 'Threads Aura Card — What\'s your internet aura?',
   description:
-    'Enter your Threads username to distill your online profile cadence, humor, and creative energy into a beautiful, collectible glassmorphic card.',
+    'Enter your Threads username and get a beautiful AI-generated aura card with metrics, rarity tier, badges, and insights based on your public profile.',
+  metadataBase: new URL(url),
   openGraph: {
+    title: 'Threads Aura Card — What\'s your internet aura?',
+    description:
+      'Enter your Threads username and get a beautiful AI-generated aura card with metrics, rarity tier, badges, and insights based on your public profile.',
+    url,
     siteName: 'Threads Aura Card',
     type: 'website',
+    locale: 'en_US',
   },
   twitter: {
     card: 'summary_large_image',
+    title: 'Threads Aura Card — What\'s your internet aura?',
+    description:
+      'Enter your Threads username and get a beautiful AI-generated aura card.',
     site: '@heyitskuril',
+    creator: '@heyitskuril',
   },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
