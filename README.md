@@ -40,4 +40,4 @@ app/
     └── route.ts           # Serverless profile lookup
 ```
 
-Built by [Kuril Dev](https://kuril.dev) · Follow [@heyitskuril](https://threads.net/@heyitskuril)
+Built by [Kuril Dev](https://kuril.dev) · Follow [@heyitskuril](https://threads.com/@heyitskuril)

@@ -412,7 +412,7 @@ The product is the hero. Kuril Dev is present but never intrusive — visibility
 Minimal, indie-feeling, not corporate:
 
 > Built with ❤️ by **Kuril Dev**
-> [kuril.dev](https://kuril.dev) · Follow [@heyitskuril](https://threads.net/@heyitskuril)
+> [kuril.dev](https://kuril.dev) · Follow [@heyitskuril](https://threads.com/@heyitskuril)
 
 Styled small, muted color, centered or left-aligned depending on layout — never boxed in a heavy "footer bar" that feels like a template.
 
@@ -421,7 +421,7 @@ Placed just above the footer, a short, humble block:
 
 > **Created by Kuril Dev**
 > A solo developer building fun, useful, and shareable internet experiences.
-> Portfolio → [kuril.dev](https://kuril.dev) · Social → [@heyitskuril](https://threads.net/@heyitskuril)
+> Portfolio → [kuril.dev](https://kuril.dev) · Social → [@heyitskuril](https://threads.com/@heyitskuril)
 
 This should use the same restrained typography as the rest of the site — it should read like a signature, not a bio page.
 

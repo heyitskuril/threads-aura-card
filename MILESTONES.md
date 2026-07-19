@@ -184,7 +184,7 @@ Each milestone should be completable in 1–3 sessions.
 - [x] Create serverless API route `app/api/profile/[username]/route.ts`:
   - [x] Username validation (alphanumeric + period + underscore only)
   - [x] Upstash Redis cache check (`profile:{lowercased-username}` key, 24h TTL)
-  - [x] Data source: fetch `threads.net/@{username}` and extract `og:image`/`og:title` meta tags (only viable method — official `profile_lookup` evaluated and dropped; requires Meta App Review for `threads_profile_discovery`, not pursued)
+  - [x] Data source: fetch `threads.com/@{username}` and extract `og:image`/`og:title` meta tags (only viable method — official `profile_lookup` evaluated and dropped; requires Meta App Review for `threads_profile_discovery`, not pursued)
   - [x] Image rehost via Cloudinary (permanent URL, never original CDN)
   - [x] Returns honest `"unavailable"` state if page fetch or image extraction fails — never fabricates data
 - [x] Client-side integration: `app/page.tsx` calls API during loading phase, passes real `displayName`, `bio`, `avatarUrl` into `AuraCardView`

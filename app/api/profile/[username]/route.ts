@@ -149,7 +149,7 @@ ${truncated}`;
 
 async function fetchPublicProfile(username: string): Promise<ProfileResult | null> {
   try {
-    const res = await fetch(`https://www.threads.net/@${username}`, {
+    const res = await fetch(`https://www.threads.com/@${username}`, {
       signal: AbortSignal.timeout(10000),
       headers: {
         'User-Agent':

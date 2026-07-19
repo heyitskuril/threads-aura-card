@@ -305,7 +305,7 @@ export default function LandingView({ onSubmit }: LandingViewProps) {
           </p>
           <p className="max-w-md mx-auto leading-relaxed text-[11px] text-slate-600">
             A solo developer building fun, useful, and shareable internet experiences.
-            Follow along on Threads: <a href="https://threads.net/@heyitskuril" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-slate-300 font-medium font-mono">@heyitskuril</a>
+            Follow along on Threads: <a href="https://threads.com/@heyitskuril" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-slate-300 font-medium font-mono">@heyitskuril</a>
           </p>
         </footer>
 

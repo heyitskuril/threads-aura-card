@@ -157,7 +157,7 @@ export default function AuraCardView({ data, onReset, onReRoll }: AuraCardViewPr
 
   const handleShareThreads = () => {
     const caption = `My internet aura is: ${data.title.name} (${data.tier} Tier) ✨ ${data.insight} Discover yours at Threads Aura Card!`;
-    const url = `https://threads.net/intent/post?text=${encodeURIComponent(caption)}`;
+    const url = `https://threads.com/intent/post?text=${encodeURIComponent(caption)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
@@ -392,7 +392,7 @@ export default function AuraCardView({ data, onReset, onReRoll }: AuraCardViewPr
         <p className="text-[11px] text-slate-600">
           Follow creator on Threads:{' '}
           <a
-            href="https://threads.net/@heyitskuril"
+            href="https://threads.com/@heyitskuril"
             target="_blank"
             rel="noopener noreferrer"
             className="text-slate-500 hover:text-slate-300 font-medium inline-flex items-center gap-0.5"
