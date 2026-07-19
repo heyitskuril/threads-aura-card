@@ -317,6 +317,7 @@ export default function AuraCardView({ data, onReset, onReRoll }: AuraCardViewPr
             <div className="flex flex-col text-left min-w-0">
               <span className="text-sm font-semibold text-slate-200 truncate">{displayName}</span>
               <span className="text-[9px] text-slate-500 font-mono truncate">{data.username}</span>
+              {bio && <span className="text-[8px] text-slate-400 leading-tight mt-0.5 line-clamp-2">{bio}</span>}
             </div>
           </div>
 

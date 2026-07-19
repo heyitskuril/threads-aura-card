@@ -104,6 +104,31 @@ function extractRealAvatar(html: string): string | null {
   return null;
 }
 
+function extractBio(html: string): string | null {
+  const bioPatterns = [
+    /"biography"\s*:\s*"([^"]+)"/,
+    /"bio"\s*:\s*"([^"]+)"/,
+    /"description"\s*:\s*"([^"]+)"/,
+    /<meta[^>]+name="description"[^>]+content="([^"]+)"/i,
+    /<meta[^>]+property="og:description"[^>]+content="([^"]+)"/i,
+  ];
+  for (const pattern of bioPatterns) {
+    const match = html.match(pattern);
+    if (match) {
+      const bio = match[1]
+        .replace(/\\u[\dA-Fa-f]{4}/g, '')
+        .replace(/\\n/g, ' ')
+        .replace(/\\\//g, '/')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .trim();
+      if (bio && bio.length > 5 && bio.length < 500) return bio;
+    }
+  }
+  return null;
+}
+
 function deriveTier(metrics: { score: number }[]): string {
   const avg = metrics.reduce((s, m) => s + m.score, 0) / metrics.length;
   const highCount = metrics.filter((m) => m.score >= 78).length;
@@ -260,6 +285,8 @@ async function analyzeProfile(username: string, isReroll: boolean): Promise<{
       avatarUrl = rehosted || imageUrl;
     }
 
+    const bio = extractBio(html);
+
     if (!GEMINI_API_KEY) {
       return { cardData: null, profileData: null, html: null, status: 503 };
     }
@@ -314,7 +341,7 @@ async function analyzeProfile(username: string, isReroll: boolean): Promise<{
       generatedAt: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
       profile: {
         displayName,
-        bio: null,
+        bio,
         avatarUrl,
         source: 'ai-generated',
       },
