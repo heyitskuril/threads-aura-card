@@ -105,27 +105,16 @@ function extractRealAvatar(html: string): string | null {
 }
 
 function extractBio(html: string): string | null {
-  const bioPatterns = [
-    /"biography"\s*:\s*"([^"]+)"/,
-    /"bio"\s*:\s*"([^"]+)"/,
-    /"description"\s*:\s*"([^"]+)"/,
-    /<meta[^>]+name="description"[^>]+content="([^"]+)"/i,
-    /<meta[^>]+property="og:description"[^>]+content="([^"]+)"/i,
-  ];
-  for (const pattern of bioPatterns) {
-    const match = html.match(pattern);
-    if (match) {
-      const bio = match[1]
-        .replace(/\\u[\dA-Fa-f]{4}/g, '')
-        .replace(/\\n/g, ' ')
-        .replace(/\\\//g, '/')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .trim();
-      if (bio && bio.length > 5 && bio.length < 500) return bio;
-    }
-  }
+  const match = html.match(/"biography"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+  if (!match) return null;
+  const bio = match[1]
+    .replace(/\\u[\dA-Fa-f]{4}/g, '')
+    .replace(/\\n/g, ' ')
+    .replace(/\\\//g, '/')
+    .replace(/&amp;/g, '&')
+    .replace(/\\"/g, '"')
+    .trim();
+  if (bio && bio.length > 3 && bio.length < 500) return bio;
   return null;
 }
 
