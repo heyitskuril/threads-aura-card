@@ -32,7 +32,7 @@ export interface ProfileData {
   displayName: string | null;
   bio: string | null;
   avatarUrl: string | null;
-  source: 'cache' | 'api' | 'fallback' | 'unavailable';
+  source: 'cache' | 'api' | 'ai-generated' | 'simulated' | 'unavailable';
 }
 
 export interface AuraCardData {

@@ -5,9 +5,10 @@ import { Sparkles, Layers, Share2, HelpCircle, ArrowRight, Heart, AtSign, Zap, S
 
 interface LandingViewProps {
   onSubmit: (username: string) => void;
+  externalError?: string | null;
 }
 
-export default function LandingView({ onSubmit }: LandingViewProps) {
+export default function LandingView({ onSubmit, externalError }: LandingViewProps) {
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
@@ -108,9 +109,9 @@ export default function LandingView({ onSubmit }: LandingViewProps) {
                 </button>
               </div>
 
-              {error && (
+              {(error || externalError) && (
                 <p className="text-red-400 text-xs text-left mt-2.5 ml-1 font-medium flex items-center gap-1">
-                  <span>⚠️</span> {error}
+                  <span>⚠️</span> {externalError || error}
                 </p>
               )}
             </form>

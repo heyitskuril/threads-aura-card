@@ -5,16 +5,14 @@ import { useSearchParams } from 'next/navigation';
 import LandingView from './components/LandingView';
 import LoaderView from './components/LoaderView';
 import AuraCardView from './components/AuraCardView';
-import { generateAuraCard } from './data/catalog';
 import { saveResult, getResult } from './data/storage';
-import type { AuraCardData, ProfileData } from './types';
+import type { AuraCardData } from './types';
 
 function PageContent() {
   const [view, setView] = useState<'landing' | 'loading' | 'card'>('landing');
   const [username, setUsername] = useState('');
-  const [subSeed, setSubSeed] = useState('primary_v1');
   const [cardData, setCardData] = useState<AuraCardData | null>(null);
-  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const searchParams = useSearchParams();
 
@@ -30,25 +28,48 @@ function PageContent() {
     }
   }, [searchParams]);
 
-  const doGenerate = async (submittedUsername: string, seed: string) => {
-    const data = generateAuraCard(submittedUsername, seed);
-    data.profile = profileData || undefined;
-    saveResult(submittedUsername, data);
-    setCardData(data);
-    setView('card');
-  };
-
-  const fetchProfile = async (submittedUsername: string): Promise<ProfileData | null> => {
+  const fetchCard = async (
+    submittedUsername: string,
+    isReroll: boolean,
+  ): Promise<AuraCardData | null> => {
     try {
-      const res = await fetch(`/api/profile/${encodeURIComponent(submittedUsername)}`);
-      if (!res.ok) return null;
+      const url = isReroll
+        ? `/api/profile/${encodeURIComponent(submittedUsername)}?reroll=1`
+        : `/api/profile/${encodeURIComponent(submittedUsername)}`;
+      const res = await fetch(url);
+      if (res.status === 404) {
+        const body = await res.json();
+        setError(body.error || `We couldn't find a Threads profile for "@${submittedUsername}".`);
+        setView('landing');
+        return null;
+      }
+      if (res.status === 503) {
+        setError('AI analysis unavailable: Gemini API key not configured by the developer.');
+        setView('landing');
+        return null;
+      }
+      if (res.status === 502) {
+        const body = await res.json().catch(() => ({}));
+        setError(`AI analysis failed: ${body.debug || 'Gemini API error. Please try again.'}`);
+        setView('landing');
+        return null;
+      }
+      if (!res.ok) {
+        setError('Something went wrong. Please try again.');
+        setView('landing');
+        return null;
+      }
       return await res.json();
     } catch {
+      setError('Network error. Check your connection and try again.');
+      setView('landing');
       return null;
     }
   };
 
   const handleStartAnalysis = async (submittedUsername: string) => {
+    setError(null);
+
     const cached = getResult(submittedUsername);
     if (cached) {
       setUsername(submittedUsername);
@@ -58,32 +79,33 @@ function PageContent() {
     }
 
     setUsername(submittedUsername);
-    setSubSeed('primary_v1');
     setView('loading');
 
-    const profile = await fetchProfile(submittedUsername);
-    setProfileData(profile);
+    const data = await fetchCard(submittedUsername, false);
+    if (!data) return;
 
-    setTimeout(() => doGenerate(submittedUsername, 'primary_v1'), 4500);
+    saveResult(submittedUsername, data);
+    setCardData(data);
+    setView('card');
   };
 
   const handleReset = () => {
     setView('landing');
     setCardData(null);
     setUsername('');
-    setSubSeed('primary_v1');
-    setProfileData(null);
+    setError(null);
   };
 
   const handleReRoll = async () => {
+    setError(null);
     setView('loading');
-    const newSeed = Math.random().toString(36).substring(2, 9);
-    setSubSeed(newSeed);
 
-    const profile = await fetchProfile(username);
-    setProfileData(profile);
+    const data = await fetchCard(username, true);
+    if (!data) return;
 
-    setTimeout(() => doGenerate(username, newSeed), 4500);
+    saveResult(username, data);
+    setCardData(data);
+    setView('card');
   };
 
   return (
@@ -94,7 +116,9 @@ function PageContent() {
       }}
     >
       <div key={view} className="animate-view-fade-in">
-        {view === 'landing' && <LandingView onSubmit={handleStartAnalysis} />}
+        {view === 'landing' && (
+          <LandingView onSubmit={handleStartAnalysis} externalError={error} />
+        )}
 
         {view === 'loading' && <LoaderView />}
 

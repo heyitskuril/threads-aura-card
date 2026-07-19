@@ -111,41 +111,120 @@ export default function AuraCardView({ data, onReset, onReRoll }: AuraCardViewPr
     if (!cardRef.current || downloading) return;
     setDownloading(true);
 
-    const card = cardRef.current;
-    const originalWidth = card.style.width;
-    const originalMaxWidth = card.style.maxWidth;
-
     try {
-      card.style.width = '432px';
-      card.style.maxWidth = '432px';
+      const original = cardRef.current;
+      const cloned = original.cloneNode(true) as HTMLElement;
+      cloned.style.position = 'fixed';
+      cloned.style.left = '-9999px';
+      cloned.style.top = '0';
+      cloned.style.width = '432px';
+      cloned.style.maxWidth = '432px';
+      cloned.style.transform = 'none';
+      cloned.style.borderRadius = '24px';
+      cloned.style.overflow = 'hidden';
+      cloned.style.background = '#050505';
+
+      (cloned.querySelectorAll('*') as NodeListOf<HTMLElement>).forEach((el) => {
+        el.style.transform = 'none';
+        el.style.animation = 'none';
+        el.style.transition = 'none';
+      });
+
+      document.body.appendChild(cloned);
+      await new Promise(r => setTimeout(r, 200));
 
       const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(card, {
-        useCORS: true,
-        allowTaint: true,
+      const canvas = await html2canvas(cloned, {
         scale: 2.5,
-        backgroundColor: '#0B0B0F',
+        backgroundColor: '#050505',
+        allowTaint: true,
+        useCORS: true,
         logging: false,
-        onclone: (documentClone: Document) => {
-          const cloneCard = documentClone.getElementById('aura-card-main-body');
-          if (cloneCard) {
-            cloneCard.style.transform = 'none';
-          }
-        }
+        width: 432,
+        height: 540,
       });
+
+      document.body.removeChild(cloned);
 
       const image = canvas.toDataURL('image/png', 1.0);
       const link = document.createElement('a');
       link.download = `${data.username.replace('@', '')}_aura_card.png`;
       link.href = image;
       link.click();
-    } catch (err) {
-      console.error('Failed to export Aura Card', err);
-    } finally {
-      card.style.width = originalWidth;
-      card.style.maxWidth = originalMaxWidth;
-      setDownloading(false);
+    } catch {
+      try {
+        const cvs = document.createElement('canvas');
+        cvs.width = 1080;
+        cvs.height = 1350;
+        const ctx = cvs.getContext('2d');
+        if (!ctx) return;
+
+        ctx.fillStyle = '#050505';
+        ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 52px sans-serif';
+        ctx.fillText(data.title.name, 540, 300);
+
+        ctx.font = '22px sans-serif';
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText(data.username, 540, 360);
+
+        ctx.font = 'bold 18px sans-serif';
+        ctx.fillStyle = '#8b5cf6';
+        ctx.fillText(data.tier.toUpperCase(), 540, 400);
+
+        const ty = 480;
+        data.metrics.slice(0, 10).forEach((m, i) => {
+          const y = ty + i * 48;
+          ctx.textAlign = 'left';
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '15px sans-serif';
+          ctx.fillText(`${m.emoji} ${m.label}`, 100, y + 10);
+
+          ctx.fillStyle = '#ffffff20';
+          ctx.fillRect(100, y + 16, 700, 12);
+          ctx.fillStyle = '#8b5cf6';
+          ctx.fillRect(100, y + 16, (m.score / 100) * 700, 12);
+
+          ctx.textAlign = 'right';
+          ctx.fillStyle = '#a855f7';
+          ctx.font = 'bold 15px sans-serif';
+          ctx.fillText(String(m.score), 820, y + 10);
+        });
+
+        const by = ty + 10 * 48 + 30;
+        data.badges.slice(0, 3).forEach((b, i) => {
+          const bx = 100 + i * 230;
+          ctx.fillStyle = '#ffffff15';
+          ctx.beginPath();
+          (ctx as any).roundRect(bx, by, 200, 34, 17);
+          ctx.fill();
+          ctx.fillStyle = '#cbd5e1';
+          ctx.font = '13px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(`${b.emoji} ${b.name}`, bx + 100, by + 22);
+        });
+
+        ctx.fillStyle = '#64748b';
+        ctx.font = 'italic 15px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`"${data.insight}"`, 540, by + 90);
+
+        ctx.fillStyle = '#475569';
+        ctx.font = '11px sans-serif';
+        ctx.fillText('Created with Threads Aura Card', 540, 1280);
+        ctx.fillText('by Kuril Dev', 540, 1305);
+
+        const image = cvs.toDataURL('image/png', 1.0);
+        const link = document.createElement('a');
+        link.download = `${data.username.replace('@', '')}_aura_card.png`;
+        link.href = image;
+        link.click();
+      } catch {}
     }
+    setDownloading(false);
   };
 
   const handleCopyLink = () => {
@@ -165,6 +244,7 @@ export default function AuraCardView({ data, onReset, onReRoll }: AuraCardViewPr
   const displayName = data.profile?.displayName || data.username;
   const avatarUrl = data.profile?.avatarUrl || null;
   const bio = data.profile?.bio || null;
+  const [avatarError, setAvatarError] = useState(false);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-4 py-12 md:py-16 text-slate-100 font-sans">
@@ -187,119 +267,90 @@ export default function AuraCardView({ data, onReset, onReRoll }: AuraCardViewPr
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={handleMouseLeave}
-        className={`w-full max-w-[420px] aspect-[4/5] rounded-3xl p-8 relative select-none cursor-pointer z-10 bg-[#050505] overflow-hidden ${revealed ? 'animate-card-reveal shine-effect' : 'opacity-0 scale-[0.85]'}`}
+        className={`w-full max-w-[420px] aspect-[4/5] rounded-3xl p-5 relative select-none cursor-pointer z-10 bg-[#050505] overflow-hidden ${revealed ? 'animate-card-reveal shine-effect' : 'opacity-0 scale-[0.85]'}`}
         style={{
           transform: revealed && isHovered ? `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(1.02)` : revealed ? 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)' : 'none',
           boxShadow: isHovered ? `0 0 80px -15px ${config.glowColor}, inset 0 0 0 1px rgba(255,255,255,0.08)` : `0 0 60px -20px rgba(168, 85, 247, 0.3), inset 0 0 0 1px rgba(255,255,255,0.05)`
         }}
       >
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#A855F7] to-[#EC4899]" style={{ background: `linear-gradient(90deg, ${config.textColor.includes('emerald') ? '#10b981, #34d399' : config.textColor.includes('blue') ? '#3b82f6, #60a5fa' : config.textColor.includes('fuchsia') ? '#d946ef, #e879f9' : config.textColor.includes('amber') ? '#f59e0b, #fbbf24' : config.textColor.includes('pink') ? '#ec4899, #f472b6' : '#a855f7, #ec4899'})` }} />
+        <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-3xl z-20" style={{ background: `linear-gradient(90deg, ${config.textColor.includes('emerald') ? '#34d399, #10b981' : config.textColor.includes('blue') ? '#60a5fa, #3b82f6' : config.textColor.includes('purple') ? '#a855f7, #9333ea' : config.textColor.includes('amber') ? '#fbbf24, #f59e0b' : config.textColor.includes('pink') ? '#f472b6, #ec4899' : '#e2e8f0, #94a3b8'})` }} />
 
-        <div className={`absolute inset-0 bg-gradient-to-br ${config.gradient} opacity-20 z-0`} />
+        <div className={`absolute inset-0 bg-gradient-to-br ${config.gradient} opacity-25 z-0`} />
 
-        <div className="absolute inset-0 bg-[radial-gradient(#ffffff02_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none opacity-40 z-0" />
-
-        {data.tier === 'Epic' || data.tier === 'Legendary' ? (
-          <div className="absolute -inset-[1px] rounded-3xl overflow-hidden pointer-events-none z-0">
-            <div className="absolute inset-[-100%] bg-conic from-fuchsia-500 via-purple-500 to-fuchsia-500 animate-spin" style={{ animationDuration: '4s' }} />
-          </div>
-        ) : data.tier === 'Mythic' ? (
-          <div className="absolute -inset-[1px] rounded-3xl overflow-hidden pointer-events-none z-0">
-            <div className="absolute inset-[-100%] bg-conic from-pink-500 via-indigo-500 to-pink-500 animate-spin" style={{ animationDuration: '3s' }} />
-            <div className="absolute inset-0 bg-black rounded-3xl holographic-shift" style={{ animation: 'holographic-shift 6s ease-in-out infinite' }} />
-          </div>
-        ) : null}
+        <div className="absolute inset-0 bg-[radial-gradient(#ffffff02_1px,transparent_1px)] [background-size:14px_14px] pointer-events-none opacity-30 z-0" />
 
         <div className={`absolute inset-0 rounded-3xl border pointer-events-none z-10 transition-all duration-500 ${
           data.tier === 'Common' ? 'border-white/10' :
-          data.tier === 'Uncommon' ? 'border-emerald-500/30' :
-          data.tier === 'Rare' ? 'border-blue-500/40 shadow-[inset_0_0_20px_-5px_rgba(59,130,246,0.15)]' :
-          data.tier === 'Secret' ? 'border-white/5' :
-          'border-transparent'
+          data.tier === 'Uncommon' ? 'border-emerald-600/30' :
+          data.tier === 'Rare' ? 'border-blue-600/40' :
+          data.tier === 'Secret' ? 'border-white/10' :
+          'border-white/5'
         }`} />
 
-        <div id="aura-card-main-body" className="h-full flex flex-col justify-between relative z-10">
+        <div id="aura-card-main-body" className="h-full flex flex-col relative z-10 p-2">
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] tracking-widest font-mono font-medium text-slate-400">AURA CARD //</span>
-              <span className={`text-[10px] font-mono font-bold tracking-wider px-2 py-0.5 rounded uppercase border bg-black/50 ${config.borderColor} ${config.textColor}`}>
+              <span className="text-[9px] tracking-[0.15em] font-mono font-medium text-slate-500 uppercase">AURA CARD</span>
+              <span className={`text-[9px] font-mono font-bold tracking-wider px-2 py-0.5 rounded uppercase border bg-black/60 ${config.borderColor} ${config.textColor}`}>
                 {data.tier}
               </span>
             </div>
-            <span className="text-xs font-mono text-slate-500">{data.generatedAt}</span>
+            <span className="text-[9px] font-mono text-slate-600">{data.generatedAt}</span>
           </div>
 
-          <div className="flex items-center gap-3 mt-4">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-display font-bold text-sm tracking-wider border relative overflow-hidden bg-gradient-to-br ${config.gradient} ${config.borderColor}`}>
-              {avatarUrl ? (
-                <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover absolute inset-0" />
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl flex-shrink-0 overflow-hidden border border-white/10 bg-white/5">
+              {avatarUrl && !avatarError ? (
+                <img
+                  src={avatarUrl}
+                  alt={displayName}
+                  className="w-full h-full object-cover"
+                  onError={() => setAvatarError(true)}
+                />
               ) : (
-                <>
-                  <div className="absolute inset-0 bg-black/40" />
-                  <span className={`relative z-10 ${config.textColor}`}>{initials}</span>
-                </>
+                <div className="w-full h-full flex items-center justify-center">
+                  <span className="text-xs font-bold text-slate-400">{initials}</span>
+                </div>
               )}
             </div>
-            <div className="flex flex-col text-left">
-              <span className="text-sm font-semibold font-sans text-slate-200">{displayName}</span>
-              {bio && <span className="text-[10px] text-slate-400 font-sans leading-tight mt-0.5 line-clamp-2">{bio}</span>}
-              <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider mt-0.5">Threads Presence</span>
+            <div className="flex flex-col text-left min-w-0">
+              <span className="text-sm font-semibold text-slate-200 truncate">{displayName}</span>
+              <span className="text-[9px] text-slate-500 font-mono truncate">{data.username}</span>
             </div>
           </div>
 
-          <div className="my-4 text-left">
-            <div className="text-3xl sm:text-4xl font-display font-extrabold tracking-tight mb-2 uppercase leading-none bg-gradient-to-b from-white to-neutral-400 bg-clip-text text-transparent">
+          <div className="mb-3 text-left">
+            <div className="text-xl font-bold tracking-tight mb-0.5 text-white leading-tight">
               {data.title.name}
             </div>
-            <p className="text-xs text-slate-300 leading-relaxed font-sans">{data.title.description}</p>
+            <p className="text-[10px] text-slate-400 leading-relaxed">{data.title.description}</p>
           </div>
 
-          <div className="my-1.5 text-left">
-            {data.metrics.map((metric, idx) => {
-              const barColor = config.tier === 'Secret' ? '#ffffff' : `linear-gradient(90deg, #8b5cf6, ${config.textColor.includes('emerald') ? '#10b981' : config.textColor.includes('blue') ? '#3b82f6' : config.textColor.includes('fuchsia') ? '#d946ef' : config.textColor.includes('amber') ? '#f59e0b' : config.textColor.includes('pink') ? '#ec4899' : '#a855f7'})`;
-
-              if (idx < 2) {
-                const radius = 28;
-                const circumference = 2 * Math.PI * radius;
-                const offset = circumference - (metric.score / 100) * circumference;
-                return (
-                  <div key={metric.id} className="inline-flex flex-col items-center w-1/2 align-top mb-2">
-                    <div className="relative w-[64px] h-[64px] mx-auto">
-                      <svg className="w-full h-full -rotate-90" viewBox="0 0 64 64">
-                        <circle cx="32" cy="32" r={radius} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="4" />
-                        <circle cx="32" cy="32" r={radius} fill="none" stroke="url(#ring-grad)" strokeWidth="4" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} className="transition-all duration-1000" />
-                        <defs><linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#8b5cf6" /><stop offset="100%" stopColor="#a855f7" /></linearGradient></defs>
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className={`text-lg ${config.textColor}`}>{metric.emoji}</span>
-                      </div>
-                    </div>
-                    <div className={`text-[10px] font-mono font-bold ${config.textColor} mt-0.5`}>{metric.score}</div>
-                    <div className="text-[8px] text-slate-500 font-mono uppercase tracking-wider text-center leading-tight">{metric.label}</div>
+          <div className="flex-1 min-h-0">
+            <div className="space-y-1">
+              {data.metrics.slice(0, 10).map((metric) => (
+                <div key={metric.id}>
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="text-[9px] text-slate-400 truncate">{metric.emoji} {metric.label}</span>
+                    <span className={`font-mono text-[9px] font-bold flex-shrink-0 ml-2 ${config.textColor}`}>{metric.score}</span>
                   </div>
-                );
-              }
-
-              return (
-                <div key={metric.id} className="flex items-center gap-2 mb-1.5">
-                  <span className="text-[10px] w-4 flex-shrink-0">{metric.emoji}</span>
-                  <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${metric.score}%`, background: barColor }} />
+                  <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-1000" style={{
+                      width: `${metric.score}%`,
+                      background: `linear-gradient(90deg, ${config.textColor.includes('emerald') ? '#10b981' : config.textColor.includes('blue') ? '#3b82f6' : config.textColor.includes('purple') ? '#9333ea' : config.textColor.includes('amber') ? '#f59e0b' : config.textColor.includes('pink') ? '#ec4899' : '#8b5cf6'}, ${config.textColor.includes('emerald') ? '#34d399' : config.textColor.includes('blue') ? '#60a5fa' : config.textColor.includes('purple') ? '#a855f7' : config.textColor.includes('amber') ? '#fbbf24' : config.textColor.includes('pink') ? '#f472b6' : '#a855f7'})`
+                    }} />
                   </div>
-                  <span className={`font-mono text-[10px] font-bold w-6 text-right flex-shrink-0 ${config.textColor}`}>{metric.score}</span>
-                  <span className="text-[8px] text-slate-500 font-mono uppercase w-16 truncate text-right flex-shrink-0 hidden sm:block">{metric.label}</span>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
 
-          <div className="flex flex-wrap gap-1.5 my-3">
-            {data.badges.map((badge, idx) => (
+          <div className="flex flex-wrap gap-1 mt-3 mb-2">
+            {data.badges.slice(0, 3).map((badge) => (
               <div
                 key={badge.name}
-                className={`flex items-center gap-1 text-[10px] font-medium font-mono px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300 transition-all hover:scale-105 ${revealed ? 'animate-badge-pop' : ''}`}
-                style={{ animationDelay: `${0.6 + idx * 0.12}s` }}
+                className="flex items-center gap-1 text-[8px] font-medium px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-slate-300"
                 title={badge.description}
               >
                 <span>{badge.emoji}</span>
@@ -308,15 +359,15 @@ export default function AuraCardView({ data, onReset, onReRoll }: AuraCardViewPr
             ))}
           </div>
 
-          <div className="mt-2 pt-3 border-t border-white/5 text-left">
-            <p className="text-xs italic text-slate-400 font-sans leading-relaxed">
+          <div className="pt-2 border-t border-white/5 text-left">
+            <p className="text-[9px] italic text-slate-500 leading-relaxed line-clamp-2">
               &ldquo;{data.insight}&rdquo;
             </p>
           </div>
 
-          <div className="mt-4 flex items-center justify-between text-[9px] font-mono text-slate-500 uppercase tracking-wider">
-            <span>Created with Threads Aura Card</span>
-            <span className="opacity-80">by Kuril Dev</span>
+          <div className="mt-2 flex items-center justify-between text-[7px] font-mono text-slate-600 uppercase tracking-wider">
+            <span>Threads Aura Card</span>
+            <span>by Kuril Dev</span>
           </div>
 
         </div>
