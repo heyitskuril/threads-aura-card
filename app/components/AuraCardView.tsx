@@ -126,107 +126,112 @@ export default function AuraCardView({ data, onReset, onReRoll }: AuraCardViewPr
 
     try {
       const cvs = document.createElement('canvas');
-      cvs.width = 1080;
-      cvs.height = 1350;
+      cvs.width = 1350;
+      cvs.height = 900;
       const ctx = cvs.getContext('2d');
       if (!ctx) { setDownloading(false); return; }
 
-      const grad = ctx.createRadialGradient(540, 200, 50, 540, 675, 800);
+      const grad = ctx.createRadialGradient(300, 200, 50, 675, 450, 800);
       grad.addColorStop(0, bg[0]);
       grad.addColorStop(1, bg[1]);
       ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, 1080, 1350);
+      ctx.fillRect(0, 0, 1350, 900);
 
-      const dot = ctx.createRadialGradient(200, 100, 10, 200, 100, 300);
-      dot.addColorStop(0, tc + '20');
+      const dot = ctx.createRadialGradient(100, 100, 10, 100, 100, 400);
+      dot.addColorStop(0, tc + '25');
       dot.addColorStop(1, 'transparent');
       ctx.fillStyle = dot;
-      ctx.fillRect(0, 0, 1080, 1350);
+      ctx.fillRect(0, 0, 1350, 900);
+
+      ctx.textAlign = 'left';
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = '11px monospace';
+      ctx.fillText('THREADS AURA CARD', 40, 40);
+
+      ctx.fillStyle = tc;
+      ctx.font = 'bold 10px monospace';
+      ctx.fillText(data.tier.toUpperCase(), 40, 58);
 
       const displayName = data.profile?.displayName || data.username;
 
-      ctx.textAlign = 'center';
+      ctx.fillStyle = '#f1f5f9';
+      ctx.font = 'bold 26px sans-serif';
+      ctx.fillText(data.title.name, 40, 115);
 
       ctx.fillStyle = '#94a3b8';
-      ctx.font = '14px monospace';
-      ctx.fillText('AURA CARD', 540, 60);
+      ctx.font = '12px sans-serif';
+      ctx.fillText(data.title.description, 40, 135);
 
-      ctx.fillStyle = tc;
-      ctx.font = 'bold 11px monospace';
-      ctx.fillText(data.tier.toUpperCase(), 540, 80);
+      ctx.fillStyle = tc + '80';
+      ctx.font = 'italic 11px sans-serif';
+      ctx.fillText(config.description, 40, 155);
 
       ctx.fillStyle = '#e2e8f0';
-      ctx.font = 'bold 14px sans-serif';
-      ctx.fillText(displayName, 540, 115);
+      ctx.font = 'bold 15px sans-serif';
+      ctx.fillText(displayName, 40, 195);
 
       ctx.fillStyle = '#64748b';
       ctx.font = '12px monospace';
-      ctx.fillText(data.username, 540, 135);
+      ctx.fillText(data.username, 40, 215);
 
       if (data.profile?.bio) {
         ctx.fillStyle = '#94a3b8';
         ctx.font = '11px sans-serif';
-        const bioText = data.profile.bio.length > 80 ? data.profile.bio.slice(0, 80) + '...' : data.profile.bio;
-        ctx.fillText(bioText, 540, 155);
+        const bioText = data.profile.bio.length > 120 ? data.profile.bio.slice(0, 120) + '...' : data.profile.bio;
+        ctx.fillText(bioText, 40, 235);
       }
 
-      ctx.fillStyle = '#f1f5f9';
-      ctx.font = 'bold 32px sans-serif';
-      ctx.fillText(data.title.name, 540, 220);
+      const metricsX = 500;
+      data.metrics.slice(0, 8).forEach((m, i) => {
+        const col = i < 4 ? 0 : 1;
+        const row = i < 4 ? i : i - 4;
+        const x = metricsX + col * 400;
+        const y = 100 + row * 42;
 
-      ctx.fillStyle = '#64748b';
-      ctx.font = '13px sans-serif';
-      ctx.fillText(data.title.description, 540, 245);
-
-      ctx.fillStyle = tc + '60';
-      ctx.font = 'italic 12px sans-serif';
-      ctx.fillText(config.description, 540, 270);
-
-      const ty = 310;
-      data.metrics.slice(0, 10).forEach((m, i) => {
-        const y = ty + i * 40;
-        ctx.textAlign = 'left';
         ctx.fillStyle = '#94a3b8';
-        ctx.font = '13px sans-serif';
-        ctx.fillText(`${m.emoji} ${m.label}`, 100, y + 10);
+        ctx.font = '12px sans-serif';
+        ctx.fillText(`${m.emoji} ${m.label}`, x, y);
 
-        ctx.fillStyle = '#ffffff18';
-        ctx.fillRect(100, y + 16, 700, 10);
         ctx.fillStyle = tc;
-        ctx.fillRect(100, y + 16, (m.score / 100) * 700, 10);
-
+        ctx.font = 'bold 12px sans-serif';
         ctx.textAlign = 'right';
+        ctx.fillText(String(m.score), x + 340, y);
+        ctx.textAlign = 'left';
+
+        ctx.fillStyle = '#ffffff15';
+        ctx.fillRect(x, y + 5, 340, 8);
         ctx.fillStyle = tc;
-        ctx.font = 'bold 13px sans-serif';
-        ctx.fillText(String(m.score), 820, y + 10);
+        ctx.fillRect(x, y + 5, (m.score / 100) * 340, 8);
       });
 
-      const by = ty + 10 * 40 + 20;
-      data.badges.slice(0, 3).forEach((b, i) => {
-        const bx = 100 + i * 230;
+      const badgeY = 275;
+      ctx.textAlign = 'left';
+      data.badges.slice(0, 4).forEach((b, i) => {
+        const bx = 40 + i * 130;
         ctx.fillStyle = '#ffffff12';
         ctx.beginPath();
-        (ctx as any).roundRect(bx, by, 200, 30, 15);
+        (ctx as any).roundRect(bx, badgeY, 115, 26, 13);
         ctx.fill();
         ctx.fillStyle = '#cbd5e1';
-        ctx.font = '12px sans-serif';
+        ctx.font = '11px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(`${b.emoji} ${b.name}`, bx + 100, by + 20);
+        ctx.fillText(`${b.emoji} ${b.name}`, bx + 57, badgeY + 18);
       });
 
       ctx.fillStyle = '#64748b';
-      ctx.font = 'italic 13px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(`"${data.insight}"`, 540, by + 70);
+      ctx.font = 'italic 12px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(`"${data.insight}"`, 40, 340);
 
       ctx.fillStyle = '#475569';
-      ctx.font = '10px sans-serif';
-      ctx.fillText('Created with Threads Aura Card', 540, 1295);
-      ctx.fillText('by Kuril Dev', 540, 1315);
+      ctx.font = '9px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText('Created with Threads Aura Card · by Kuril Dev', 1310, 870);
 
       const image = cvs.toDataURL('image/png', 1.0);
       const link = document.createElement('a');
-      link.download = `${data.username.replace('@', '')}_aura_card.png`;
+      link.download = `${data.username.replace('@', '')}_aura_summary.png`;
       link.href = image;
       link.click();
     } catch {}
@@ -394,7 +399,7 @@ export default function AuraCardView({ data, onReset, onReRoll }: AuraCardViewPr
           className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-slate-100 to-slate-200 hover:from-white hover:to-white text-slate-950 font-sans font-semibold py-3 px-4 rounded-xl transition-all shadow-lg active:scale-[0.98] cursor-pointer disabled:opacity-50"
         >
           <Download className="w-4 h-4" />
-          {downloading ? 'Rendering Image...' : 'Download Threads Aura Card (PNG)'}
+          {downloading ? 'Rendering...' : 'Download Aura Summary (Landscape)'}
         </button>
 
         <div className="grid grid-cols-2 gap-2">
