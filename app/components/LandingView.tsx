@@ -1,10 +1,7 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
+'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, Layers, Share2, HelpCircle, ArrowRight, Heart, AtSign, Search, Zap, CheckCircle, Shield } from 'lucide-react';
+import { Sparkles, Layers, Share2, HelpCircle, ArrowRight, Heart, AtSign, Zap, Shield } from 'lucide-react';
 
 interface LandingViewProps {
   onSubmit: (username: string) => void;
@@ -47,16 +44,13 @@ export default function LandingView({ onSubmit }: LandingViewProps) {
 
   return (
     <div className="min-h-screen text-slate-100 font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
-      
-      {/* Background slow-moving ambient gradient blob */}
+
       <div className="absolute top-0 inset-x-0 h-[600px] overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-indigo-500/10 via-purple-500/10 to-emerald-500/5 blur-[120px]" />
       </div>
 
-      {/* Main Container */}
       <div className="max-w-6xl mx-auto px-6 py-12 md:py-20 relative z-10">
-        
-        {/* Header / Brand Mark */}
+
         <header className="flex justify-between items-center mb-16 md:mb-24">
           <div className="flex items-center">
             <div className="w-2.5 h-2.5 bg-[#A855F7] rounded-full mr-3 animate-pulse" />
@@ -69,28 +63,25 @@ export default function LandingView({ onSubmit }: LandingViewProps) {
           </span>
         </header>
 
-        {/* Hero Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center mb-24 md:mb-32">
-          
-          {/* Hero Left: Text & Search Input */}
+
           <div className="lg:col-span-7 text-left space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold tracking-wide">
               <Zap className="w-3 h-3" />
               <span>THE THREADS VIBE CHECKER</span>
             </div>
-            
+
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold tracking-tight leading-[1.08] text-slate-100">
               What is your <br />
               <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
                 internet aura?
               </span>
             </h1>
-            
+
             <p className="text-base sm:text-lg text-slate-400 max-w-xl leading-relaxed">
               Enter your Threads username to distill your online profile cadence, humor, and creative energy into a beautiful, collectible glassmorphic card.
             </p>
 
-            {/* Input Form */}
             <form onSubmit={handleSubmit} className="max-w-md pt-2">
               <div className="flex flex-col sm:flex-row gap-2">
                 <div className="relative flex-1">
@@ -116,7 +107,7 @@ export default function LandingView({ onSubmit }: LandingViewProps) {
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
-              
+
               {error && (
                 <p className="text-red-400 text-xs text-left mt-2.5 ml-1 font-medium flex items-center gap-1">
                   <span>⚠️</span> {error}
@@ -125,10 +116,8 @@ export default function LandingView({ onSubmit }: LandingViewProps) {
             </form>
           </div>
 
-          {/* Hero Right: Stacked Preview Cards (Social Proof) */}
           <div className="lg:col-span-5 relative h-[380px] sm:h-[450px] w-full max-w-md mx-auto flex items-center justify-center">
-            
-            {/* Card 1: Common (Left Stack) */}
+
             <div className="absolute left-[5%] rotate-[-6deg] scale-90 opacity-60 z-10 transition-transform duration-500 hover:scale-95 hover:rotate-[-2deg] hover:opacity-80">
               <div className="w-[220px] aspect-[4/5] rounded-2xl bg-gradient-to-br from-slate-900 to-zinc-950 border border-slate-800 p-4 shadow-2xl relative overflow-hidden">
                 <div className="h-full flex flex-col justify-between text-left font-mono">
@@ -153,7 +142,6 @@ export default function LandingView({ onSubmit }: LandingViewProps) {
               </div>
             </div>
 
-            {/* Card 2: Legendary (Center Stack) */}
             <div className="absolute scale-100 z-30 shadow-2xl shadow-amber-500/10 transition-transform duration-500 hover:scale-105">
               <div className="w-[240px] aspect-[4/5] rounded-2xl bg-gradient-to-br from-amber-950 via-slate-900 to-orange-950 border border-amber-500/40 p-5 shadow-2xl relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(#ffffff02_1px,transparent_1px)] [background-size:12px_12px]" />
@@ -179,7 +167,6 @@ export default function LandingView({ onSubmit }: LandingViewProps) {
               </div>
             </div>
 
-            {/* Card 3: Epic (Right Stack) */}
             <div className="absolute right-[5%] rotate-[6deg] scale-90 opacity-60 z-20 transition-transform duration-500 hover:scale-95 hover:rotate-[2deg] hover:opacity-80">
               <div className="w-[220px] aspect-[4/5] rounded-2xl bg-gradient-to-br from-fuchsia-950 via-zinc-950 to-purple-950 border border-fuchsia-500/30 p-4 shadow-2xl relative overflow-hidden">
                 <div className="h-full flex flex-col justify-between text-left font-mono">
@@ -208,13 +195,12 @@ export default function LandingView({ onSubmit }: LandingViewProps) {
 
         </div>
 
-        {/* How It Works Strip */}
         <section className="mb-24 md:mb-32">
           <div className="text-center max-w-xl mx-auto mb-12">
             <h2 className="text-2xl font-display font-bold text-slate-200">How Threads Aura Card works</h2>
             <p className="text-slate-400 text-sm mt-2">Zero integration, zero passwords, completely safe evaluation flow.</p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center relative">
             <div className="p-6 bg-slate-900/20 rounded-2xl border border-slate-850 relative">
               <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center mx-auto mb-4 text-indigo-400 border border-slate-800">
@@ -242,7 +228,6 @@ export default function LandingView({ onSubmit }: LandingViewProps) {
           </div>
         </section>
 
-        {/* Benefits Grid */}
         <section className="mb-24 md:mb-32 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
           <div className="p-6 bg-slate-900/20 rounded-2xl border border-slate-850 space-y-3">
             <Sparkles className="w-6 h-6 text-indigo-400" />
@@ -269,7 +254,6 @@ export default function LandingView({ onSubmit }: LandingViewProps) {
           </div>
         </section>
 
-        {/* FAQ Section */}
         <section className="max-w-3xl mx-auto mb-24 md:mb-32 text-left">
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-1 text-xs text-slate-500 font-mono mb-2 uppercase tracking-widest">
@@ -281,8 +265,8 @@ export default function LandingView({ onSubmit }: LandingViewProps) {
 
           <div className="space-y-4">
             {faqData.map((faq, idx) => (
-              <div 
-                key={idx} 
+              <div
+                key={idx}
                 className="bg-slate-900/20 border border-slate-850 rounded-2xl overflow-hidden transition-all duration-300"
               >
                 <button
@@ -294,7 +278,7 @@ export default function LandingView({ onSubmit }: LandingViewProps) {
                     ＋
                   </span>
                 </button>
-                
+
                 {activeFaq === idx && (
                   <div className="px-6 pb-5 pt-1 text-xs md:text-sm text-slate-400 leading-relaxed border-t border-slate-850/40">
                     {faq.a}
@@ -305,23 +289,22 @@ export default function LandingView({ onSubmit }: LandingViewProps) {
           </div>
         </section>
 
-        {/* Footer (Minimalist Site-wide) */}
         <footer className="mt-16 md:mt-24 pt-8 border-t border-slate-900 text-center text-xs text-slate-600 font-sans space-y-3">
           <p className="flex items-center justify-center gap-1.5">
             <span>Built with</span>
             <Heart className="w-3 h-3 text-red-500 fill-red-500 animate-pulse" />
             <span>by</span>
-            <a 
-              href="https://kuril.dev" 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              href="https://kuril.dev"
+              target="_blank"
+              rel="noopener noreferrer"
               className="font-semibold text-slate-400 hover:text-slate-200 transition-colors underline decoration-slate-700 underline-offset-2"
             >
               Kuril Dev
             </a>
           </p>
           <p className="max-w-md mx-auto leading-relaxed text-[11px] text-slate-600">
-            A solo developer building fun, useful, and shareable internet experiences. 
+            A solo developer building fun, useful, and shareable internet experiences.
             Follow along on Threads: <a href="https://threads.net/@heyitskuril" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-slate-300 font-medium font-mono">@heyitskuril</a>
           </p>
         </footer>

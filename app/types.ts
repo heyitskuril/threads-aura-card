@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 export enum AuraTier {
   COMMON = 'Common',
   UNCOMMON = 'Uncommon',
@@ -33,6 +28,13 @@ export interface AuraBadge {
   description: string;
 }
 
+export interface ProfileData {
+  displayName: string | null;
+  bio: string | null;
+  avatarUrl: string | null;
+  source: 'cache' | 'api' | 'fallback' | 'unavailable';
+}
+
 export interface AuraCardData {
   username: string;
   title: AuraTitle;
@@ -41,6 +43,7 @@ export interface AuraCardData {
   badges: AuraBadge[];
   insight: string;
   generatedAt: string;
+  profile?: ProfileData;
 }
 
 export interface RarityConfig {
