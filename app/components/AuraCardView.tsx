@@ -111,119 +111,125 @@ export default function AuraCardView({ data, onReset, onReRoll }: AuraCardViewPr
     if (!cardRef.current || downloading) return;
     setDownloading(true);
 
+    const tierHex: Record<string, string> = {
+      Common: '#94a3b8', Uncommon: '#34d399', Rare: '#60a5fa',
+      Epic: '#a855f7', Legendary: '#fbbf24', Mythic: '#f472b6', Secret: '#ffffff'
+    };
+    const tierGrad: Record<string, string[]> = {
+      Common: ['#1e293b','#0f172a'], Uncommon: ['#064e3b','#0f172a'],
+      Rare: ['#1e3a5f','#0f172a'], Epic: ['#3b0764','#0f172a'],
+      Legendary: ['#451a03','#0f172a'], Mythic: ['#4c0519','#0f172a'],
+      Secret: ['#0a0a0a','#050505']
+    };
+    const tc = tierHex[data.tier] || '#94a3b8';
+    const bg = tierGrad[data.tier] || ['#0f172a','#050505'];
+
     try {
-      const original = cardRef.current;
-      const cloned = original.cloneNode(true) as HTMLElement;
-      cloned.style.position = 'fixed';
-      cloned.style.left = '-9999px';
-      cloned.style.top = '0';
-      cloned.style.width = '432px';
-      cloned.style.maxWidth = '432px';
-      cloned.style.transform = 'none';
-      cloned.style.borderRadius = '24px';
-      cloned.style.overflow = 'hidden';
-      cloned.style.background = '#050505';
+      const cvs = document.createElement('canvas');
+      cvs.width = 1080;
+      cvs.height = 1350;
+      const ctx = cvs.getContext('2d');
+      if (!ctx) { setDownloading(false); return; }
 
-      (cloned.querySelectorAll('*') as NodeListOf<HTMLElement>).forEach((el) => {
-        el.style.transform = 'none';
-        el.style.animation = 'none';
-        el.style.transition = 'none';
+      const grad = ctx.createRadialGradient(540, 200, 50, 540, 675, 800);
+      grad.addColorStop(0, bg[0]);
+      grad.addColorStop(1, bg[1]);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1080, 1350);
+
+      const dot = ctx.createRadialGradient(200, 100, 10, 200, 100, 300);
+      dot.addColorStop(0, tc + '20');
+      dot.addColorStop(1, 'transparent');
+      ctx.fillStyle = dot;
+      ctx.fillRect(0, 0, 1080, 1350);
+
+      const displayName = data.profile?.displayName || data.username;
+
+      ctx.textAlign = 'center';
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '14px monospace';
+      ctx.fillText('AURA CARD', 540, 60);
+
+      ctx.fillStyle = tc;
+      ctx.font = 'bold 11px monospace';
+      ctx.fillText(data.tier.toUpperCase(), 540, 80);
+
+      ctx.fillStyle = '#e2e8f0';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.fillText(displayName, 540, 115);
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = '12px monospace';
+      ctx.fillText(data.username, 540, 135);
+
+      if (data.profile?.bio) {
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '11px sans-serif';
+        const bioText = data.profile.bio.length > 80 ? data.profile.bio.slice(0, 80) + '...' : data.profile.bio;
+        ctx.fillText(bioText, 540, 155);
+      }
+
+      ctx.fillStyle = '#f1f5f9';
+      ctx.font = 'bold 32px sans-serif';
+      ctx.fillText(data.title.name, 540, 220);
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = '13px sans-serif';
+      ctx.fillText(data.title.description, 540, 245);
+
+      ctx.fillStyle = tc + '60';
+      ctx.font = 'italic 12px sans-serif';
+      ctx.fillText(config.description, 540, 270);
+
+      const ty = 310;
+      data.metrics.slice(0, 10).forEach((m, i) => {
+        const y = ty + i * 40;
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '13px sans-serif';
+        ctx.fillText(`${m.emoji} ${m.label}`, 100, y + 10);
+
+        ctx.fillStyle = '#ffffff18';
+        ctx.fillRect(100, y + 16, 700, 10);
+        ctx.fillStyle = tc;
+        ctx.fillRect(100, y + 16, (m.score / 100) * 700, 10);
+
+        ctx.textAlign = 'right';
+        ctx.fillStyle = tc;
+        ctx.font = 'bold 13px sans-serif';
+        ctx.fillText(String(m.score), 820, y + 10);
       });
 
-      document.body.appendChild(cloned);
-      await new Promise(r => setTimeout(r, 200));
-
-      const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(cloned, {
-        scale: 2.5,
-        backgroundColor: '#050505',
-        allowTaint: true,
-        useCORS: true,
-        logging: false,
-        width: 432,
-        height: 540,
+      const by = ty + 10 * 40 + 20;
+      data.badges.slice(0, 3).forEach((b, i) => {
+        const bx = 100 + i * 230;
+        ctx.fillStyle = '#ffffff12';
+        ctx.beginPath();
+        (ctx as any).roundRect(bx, by, 200, 30, 15);
+        ctx.fill();
+        ctx.fillStyle = '#cbd5e1';
+        ctx.font = '12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${b.emoji} ${b.name}`, bx + 100, by + 20);
       });
 
-      document.body.removeChild(cloned);
+      ctx.fillStyle = '#64748b';
+      ctx.font = 'italic 13px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`"${data.insight}"`, 540, by + 70);
 
-      const image = canvas.toDataURL('image/png', 1.0);
+      ctx.fillStyle = '#475569';
+      ctx.font = '10px sans-serif';
+      ctx.fillText('Created with Threads Aura Card', 540, 1295);
+      ctx.fillText('by Kuril Dev', 540, 1315);
+
+      const image = cvs.toDataURL('image/png', 1.0);
       const link = document.createElement('a');
       link.download = `${data.username.replace('@', '')}_aura_card.png`;
       link.href = image;
       link.click();
-    } catch {
-      try {
-        const cvs = document.createElement('canvas');
-        cvs.width = 1080;
-        cvs.height = 1350;
-        const ctx = cvs.getContext('2d');
-        if (!ctx) return;
-
-        ctx.fillStyle = '#050505';
-        ctx.fillRect(0, 0, cvs.width, cvs.height);
-
-        ctx.textAlign = 'center';
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 52px sans-serif';
-        ctx.fillText(data.title.name, 540, 300);
-
-        ctx.font = '22px sans-serif';
-        ctx.fillStyle = '#94a3b8';
-        ctx.fillText(data.username, 540, 360);
-
-        ctx.font = 'bold 18px sans-serif';
-        ctx.fillStyle = '#8b5cf6';
-        ctx.fillText(data.tier.toUpperCase(), 540, 400);
-
-        const ty = 480;
-        data.metrics.slice(0, 10).forEach((m, i) => {
-          const y = ty + i * 48;
-          ctx.textAlign = 'left';
-          ctx.fillStyle = '#94a3b8';
-          ctx.font = '15px sans-serif';
-          ctx.fillText(`${m.emoji} ${m.label}`, 100, y + 10);
-
-          ctx.fillStyle = '#ffffff20';
-          ctx.fillRect(100, y + 16, 700, 12);
-          ctx.fillStyle = '#8b5cf6';
-          ctx.fillRect(100, y + 16, (m.score / 100) * 700, 12);
-
-          ctx.textAlign = 'right';
-          ctx.fillStyle = '#a855f7';
-          ctx.font = 'bold 15px sans-serif';
-          ctx.fillText(String(m.score), 820, y + 10);
-        });
-
-        const by = ty + 10 * 48 + 30;
-        data.badges.slice(0, 3).forEach((b, i) => {
-          const bx = 100 + i * 230;
-          ctx.fillStyle = '#ffffff15';
-          ctx.beginPath();
-          (ctx as any).roundRect(bx, by, 200, 34, 17);
-          ctx.fill();
-          ctx.fillStyle = '#cbd5e1';
-          ctx.font = '13px sans-serif';
-          ctx.textAlign = 'center';
-          ctx.fillText(`${b.emoji} ${b.name}`, bx + 100, by + 22);
-        });
-
-        ctx.fillStyle = '#64748b';
-        ctx.font = 'italic 15px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(`"${data.insight}"`, 540, by + 90);
-
-        ctx.fillStyle = '#475569';
-        ctx.font = '11px sans-serif';
-        ctx.fillText('Created with Threads Aura Card', 540, 1280);
-        ctx.fillText('by Kuril Dev', 540, 1305);
-
-        const image = cvs.toDataURL('image/png', 1.0);
-        const link = document.createElement('a');
-        link.download = `${data.username.replace('@', '')}_aura_card.png`;
-        link.href = image;
-        link.click();
-      } catch {}
-    }
+    } catch {}
     setDownloading(false);
   };
 
@@ -326,6 +332,7 @@ export default function AuraCardView({ data, onReset, onReRoll }: AuraCardViewPr
               {data.title.name}
             </div>
             <p className="text-[10px] text-slate-400 leading-relaxed">{data.title.description}</p>
+            <p className={`text-[8px] italic mt-0.5 ${config.textColor}`}>{config.description}</p>
           </div>
 
           <div className="flex-1 min-h-0">

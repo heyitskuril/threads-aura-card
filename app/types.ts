@@ -50,6 +50,7 @@ export interface RarityConfig {
   tier: AuraTier;
   label: string;
   odds: string;
+  description: string;
   gradient: string;
   borderColor: string;
   glowColor: string;
@@ -57,4 +58,5 @@ export interface RarityConfig {
   textGlow: string;
   confetti: boolean;
   intensity: 'low' | 'medium' | 'high' | 'ultra' | 'minimal';
+  hexColor: string;
 }
