@@ -60,7 +60,7 @@ export default function LandingView({ onSubmit, externalError }: LandingViewProp
             </span>
           </div>
           <span className="text-[11px] font-mono tracking-wider text-slate-500 uppercase">
-            V1.0.4 — SECRET TIER UNLOCKED
+            V1.0.5 — SECRET TIER UNLOCKED
           </span>
         </header>
 
